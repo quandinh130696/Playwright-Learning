@@ -57,9 +57,9 @@ jobs:
           echo "===== CONTENT ====="
           cat summary.txt || echo "no content"
           echo "============================="
-          
+
       - name: Read test summary
-      - id: read_summary
+        id: read_summary
         if: always()
         run: |
           {
