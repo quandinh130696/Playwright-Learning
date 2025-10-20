@@ -1,4 +1,10 @@
 {
-    "email": "quannd@test.com",
-    "password": "Plan@2020"
+    "firstUser": {
+        "email": "quannd@test.com",
+        "password": "Plan@2020"
+    },
+    "secondUser": {
+        "email": "quannd@test2.com",
+        "password": "Plan@2020"
+    }
 }
