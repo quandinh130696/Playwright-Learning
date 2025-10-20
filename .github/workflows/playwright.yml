@@ -76,7 +76,7 @@ jobs:
             (branch: ${{ github.ref_name }}) has completed.
 
             Here is the summary:
-            ${{ steps.read_summary.outputs.text }}
+            ${{ steps.read_summary.outputs.summary }}
 
             You can also download the full HTML report attached below:
             https://quandinh130696.github.io/Playwright-Learning/
