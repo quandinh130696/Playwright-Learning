@@ -44,11 +44,19 @@ jobs:
         if: always()
         run: zip -r playwright-report.zip playwright-report
 
+      - name: Normalize line endings
+        if: always()
+        run: |
+          tr -d '\r' < summary.txt > tmp && mv tmp summary.txt
+
       - id: read_summary
         if: always()
         run: |
-          summary_content=$(cat summary.txt | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
-          echo "summary=$summary_content" >> $GITHUB_OUTPUT
+          {
+            echo 'summary<<EOF'
+            cat summary.txt
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
           
       - name: Deploy HTML report to GitHub Pages
         if: always()
