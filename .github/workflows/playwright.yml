@@ -49,6 +49,15 @@ jobs:
         run: |
           tr -d '\r' < summary.txt > tmp && mv tmp summary.txt
 
+      - name: Debug summary file
+        if: always()
+        run: |
+          echo "===== CHECK summary.txt ====="
+          ls -l summary.txt || echo "summary.txt not found"
+          echo "===== CONTENT ====="
+          cat summary.txt || echo "no content"
+          echo "============================="
+
       - id: read_summary
         if: always()
         run: |
