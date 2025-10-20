@@ -47,10 +47,10 @@ jobs:
       - id: read_summary
         if: always()
         run: |
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "summary<<'EOF'" >> $GITHUB_OUTPUT
           cat summary.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
+          
       - name: Deploy HTML report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
