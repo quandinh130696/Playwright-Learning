@@ -46,7 +46,17 @@ jobs:
 
       - id: read_summary
         if: always()
-        run: echo "text<<EOF" >> $GITHUB_OUTPUT && cat summary.txt >> $GITHUB_OUTPUT && echo "EOF" >> $GITHUB_OUTPUT
+        run: |
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          cat summary.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Deploy HTML report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: playwright-report
 
       - name: Send test report via email
         if: always()
@@ -68,6 +78,5 @@ jobs:
             Here is the summary:
             ${{ steps.read_summary.outputs.text }}
 
-            You can also download the full HTML report attached below.
-
-          attachments: playwright-report.zip
+            You can also download the full HTML report attached below:
+            https://quandinh130696.github.io/Playwright-Learning
