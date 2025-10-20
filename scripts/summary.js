@@ -34,12 +34,12 @@ for (const suite of data.suites || []) {
 const seconds = (duration / 1000).toFixed(1);
 
 const summary = `
-- Playwright Test Summary
-- Passed: ${passed}
-- Failed: ${failed}
-- Skipped: ${skipped}
-- Total: ${total}
-- Duration: ${seconds}s
+📊 Playwright Test Summary
+✅ Passed: ${passed}
+❌ Failed: ${failed}
+⚠️ Skipped: ${skipped}
+🧪 Total: ${total}
+⏱ Duration: ${seconds}s
 `;
 
 fs.writeFileSync('summary.txt', summary.trim());

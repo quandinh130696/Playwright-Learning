@@ -40,37 +40,55 @@ jobs:
         if: always()
         run: node scripts/summary.js
 
+      - name: Create summary short + base64 outputs
+        id: gen_outputs
+        if: always()
+        run: |
+          # ensure file exists
+          if [ ! -f summary.txt ]; then
+            echo "⚠️ No summary file found" > summary.txt
+          fi
+
+          # normalize line endings (remove CR)
+          tr -d '\r' < summary.txt > summary_unix.txt && mv summary_unix.txt summary.txt
+
+          # extract numbers for a one-line short summary
+          passed=$(grep -oP 'Passed:\s*\K[0-9]+' summary.txt || echo 0)
+          failed=$(grep -oP 'Failed:\s*\K[0-9]+' summary.txt || echo 0)
+          skipped=$(grep -oP 'Skipped:\s*\K[0-9]+' summary.txt || echo 0)
+          total=$(grep -oP 'Total:\s*\K[0-9]+' summary.txt || echo 0)
+          duration=$(grep -oP 'Duration:\s*\K[0-9]+(?:\.[0-9]+)?s' summary.txt || echo "0s")
+
+          # one-line short summary (no newlines)
+          short="📊 Passed:${passed} Failed:${failed} Skipped:${skipped} Total:${total} Duration:${duration}"
+
+          # base64 encode the full summary
+          summary_b64=$(base64 -w0 summary.txt)
+
+          # write outputs for later steps
+          echo "summary_short=${short}" >> $GITHUB_OUTPUT
+          echo "summary_b64=${summary_b64}" >> $GITHUB_OUTPUT
+
+      - name: Decode summary for email attachment
+        if: always()
+        run: |
+          if [ -n "${{ steps.gen_outputs.outputs.summary_b64 }}" ]; then
+            echo "${{ steps.gen_outputs.outputs.summary_b64 }}" | base64 -d > summary_decoded.txt || echo "Decode failed" > summary_decoded.txt
+          else
+            echo "No summary content" > summary_decoded.txt
+          fi
+
       - name: Compress Playwright report
         if: always()
         run: zip -r playwright-report.zip playwright-report
 
-      - name: Normalize line endings
-        if: always()
-        run: |
-          tr -d '\r' < summary.txt > tmp && mv tmp summary.txt
-
-      - name: Debug summary file
-        if: always()
-        run: |
-          echo "===== CHECK summary.txt ====="
-          ls -l summary.txt || echo "summary.txt not found"
-          echo "===== CONTENT ====="
-          cat summary.txt || echo "no content"
-          echo "============================="
-
-      - name: Read test summary
-        id: read_summary
-        if: always()
-        run: |
-         summary_content=$(cat summary.txt | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
-         echo "summary=$summary_content" >> $GITHUB_OUTPUT
-          
       - name: Deploy HTML report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: playwright-report
+          enable_jekyll: false
 
       - name: Send test report via email
         if: always()
@@ -90,7 +108,7 @@ jobs:
             (branch: ${{ github.ref_name }}) has completed.
 
             Here is the summary:
-            ${{ steps.read_summary.outputs.summary }}
+            ${{ steps.gen_outputs.outputs.summary_short }}
 
-            You can also download the full HTML report attached below:
+            🔗 Full HTML report:
             https://quandinh130696.github.io/Playwright-Learning/
