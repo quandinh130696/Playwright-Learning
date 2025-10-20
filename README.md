@@ -12,6 +12,7 @@ npx playwright show-report
 
 
 # Project structure
+```
 ├── data/                        # Test data files
 │   └── users.json               # Sample user credentials for login tests
 │
