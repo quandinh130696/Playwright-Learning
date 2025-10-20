@@ -20,3 +20,5 @@ npx playwright show-report
 │   └── login.page.ts              # Login page object with locators and actions
 ├── 📁 tests/                       # Main test specifications
 │   └── testcase_login.spec.ts     # Example login test using POM
+├── 📁 scripts/                     # Scripts for Summary test results
+│   └── summary.js                      # Summary test results
