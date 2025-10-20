@@ -44,39 +44,27 @@ jobs:
         id: gen_outputs
         if: always()
         run: |
-          # ensure file exists
           if [ ! -f summary.txt ]; then
-            echo "⚠️ No summary file found" > summary.txt
+            echo "No summary file" > summary.txt
           fi
 
-          # normalize line endings (remove CR)
+          # normalize line endings
           tr -d '\r' < summary.txt > summary_unix.txt && mv summary_unix.txt summary.txt
 
-          # extract numbers for a one-line short summary
           passed=$(grep -oP 'Passed:\s*\K[0-9]+' summary.txt || echo 0)
           failed=$(grep -oP 'Failed:\s*\K[0-9]+' summary.txt || echo 0)
           skipped=$(grep -oP 'Skipped:\s*\K[0-9]+' summary.txt || echo 0)
           total=$(grep -oP 'Total:\s*\K[0-9]+' summary.txt || echo 0)
           duration=$(grep -oP 'Duration:\s*\K[0-9]+(?:\.[0-9]+)?s' summary.txt || echo "0s")
 
-          # short summary
-          short="📊 Test Summary:\n✅ Passed: ${passed}\n❌ Failed: ${failed}\n⚠️ Skipped: ${skipped}\n📦 Total: ${total}\n⏱ Duration: ${duration}"
+          short=$(printf "📊 Test Summary:\n✅ Passed: %s\n❌ Failed: %s\n⏭️ Skipped: %s\n📦 Total: %s\n⏱ Duration: %s" "$passed" "$failed" "$skipped" "$total" "$duration")
 
-          # base64 encode the full summary
           summary_b64=$(base64 -w0 summary.txt)
 
-          # write outputs for later steps
-          echo "summary_short=${short}" >> $GITHUB_OUTPUT
-          echo "summary_b64=${summary_b64}" >> $GITHUB_OUTPUT
-
-      - name: Decode summary for email attachment
-        if: always()
-        run: |
-          if [ -n "${{ steps.gen_outputs.outputs.summary_b64 }}" ]; then
-            echo "${{ steps.gen_outputs.outputs.summary_b64 }}" | base64 -d > summary_decoded.txt || echo "Decode failed" > summary_decoded.txt
-          else
-            echo "No summary content" > summary_decoded.txt
-          fi
+          {
+            printf "summary_short<<EOF\n%s\nEOF\n" "$short"
+            echo "summary_b64=${summary_b64}"
+          } >> $GITHUB_OUTPUT
 
       - name: Compress Playwright report
         if: always()
