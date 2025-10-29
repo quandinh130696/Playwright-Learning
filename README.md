@@ -2,7 +2,11 @@
 
 # Setup
 1. Install nodeJS
-2. run npm install
+2. Clone the repository
+```
+https://github.com/quandinh130696/Playwright-Learning.git
+```
+3. run npm install
 
 # Run the tests
 npx playwright test
